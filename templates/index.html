@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shoes Store</title>
+    <style>
+        /* Your CSS styles go here */
+        .shoe-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .shoe-card {
+            width: 200px;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .shoe-name {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .shoe-image {
+            width: 150px;
+            height: 150px;
+            margin: 10px auto;
+        }
+
+        .shoe-price {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .buy-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            margin-top: 5px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .buy-button:hover {
+            background-color: #45a049;
+        }
+
+        .cart-container {
+            margin-top: 20px;
+        }
+
+        .cart-items {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-name {
+            flex-grow: 1;
+            font-weight: bold;
+        }
+
+        .cart-item-price {
+            margin-left: 10px;
+        }
+
+        .cart-total {
+            font-weight: bold;
+            margin-top: 10px;
+
+}
+
+
+            #the new oneeeeeeeeeeeeeeeeeeeeeeeeee
+
+/* Position the cart button container */
+.cart-button-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* Style the cart button */
+.cart-button {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Style the cart count */
+.cart-count {
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+
+
+
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Shoes Store</h1>
+    <div class="shoe-container">
+        {% for shoe in shoes %}
+        <div class="shoe-card">
+            <h2 class="shoe-name">{{ shoe.name }}</h2>
+            <img src="{{ url_for('static', filename=shoe.image) }}" alt="{{ shoe.name }}" class="shoe-image">
+            <p class="shoe-price">Price: ${{ shoe.price }}</p>
+            <label for="size-select">Size:</label>
+            <select id="size-select" data-name="{{ shoe.name }}" data-price="{{ shoe.price }}">
+                <option value="">-- Select Size --</option>
+                <option value="38">38</option>
+                <option value="39">39</option>
+                <option value="40">40</option>
+                <option value="41">41</option>
+                <option value="42">42</option>
+                <option value="43">43</option>
+                <option value="44">44</option>
+            </select>
+            <button class="buy-button" onclick="addToCart(this)">Buy</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2>Your Product</h2>
+    <div class="cart-container">
+        <ul class="cart-items" id="cart-items">
+            <!-- Shopping cart items will be added dynamically using JavaScript -->
+        </ul>
+        <p class="cart-total">Total: $<span id="cart-total">0.00</span></p>
+    </div>
+
+<!-- Add a container for the shopping cart button -->
+<div class="cart-button-container">
+    <button id="cart-button" class="cart-button" onclick="toggleCart()">Cart</button>
+    <span id="cart-count" class="cart-count">0</span>
+</div>
+
+    <script>
+       function addToCart(button) {
+    // Get the selected size from the dropdown
+    const sizeSelect = button.previousElementSibling;
+    const selectedSize = sizeSelect.value;
+
+    // Check if a size is selected
+    if (selectedSize === "") {
+        alert("Please select a size.");
+        return;
+    }
+
+    // Get the shoe name and price from the data attributes
+    const shoeName = sizeSelect.getAttribute('data-name');
+    const shoePrice = parseFloat(sizeSelect.getAttribute('data-price'));
+
+    // Get the cart items list and total price element
+    const cartList = document.getElementById('cart-items');
+    const cartTotal = document.getElementById('cart-total');
+
+    // Create a new list item for the cart
+    const cartItem = document.createElement('li');
+    cartItem.classList.add('cart-item');
+
+    // Create a span for the item name
+    const itemName = document.createElement('span');
+    itemName.classList.add('cart-item-name');
+    itemName.textContent = shoeName + ' (Size: ' + selectedSize + ')';
+
+    // Create a span for the item price
+    const itemPrice = document.createElement('span');
+    itemPrice.classList.add('cart-item-price');
+    itemPrice.textContent = '$' + shoePrice.toFixed(2);
+
+    // Create a remove button for the cart item
+    const removeButton = document.createElement('button');
+    removeButton.textContent = 'Remove';
+    removeButton.addEventListener('click', function() {
+        removeCartItem(cartItem, shoePrice);
+    });
+
+    // Append the elements to the cart item
+    cartItem.appendChild(itemName);
+    cartItem.appendChild(itemPrice);
+    cartItem.appendChild(removeButton);
+
+    // Append the item to the cart list
+    cartList.appendChild(cartItem);
+
+    // Update the total price
+    const currentTotal = parseFloat(cartTotal.textContent);
+    cartTotal.textContent = (currentTotal + shoePrice).toFixed(2);
+
+    // Update the cart count
+    const cartCount = document.getElementById('cart-count');
+    const currentCount = parseInt(cartCount.textContent);
+    cartCount.textContent = currentCount + 1;
+
+    // Reset the size select
+    sizeSelect.value = "";
+}
+
+function removeCartItem(cartItem, price) {
+    // Get the cart items list and total price element
+    const cartList = document.getElementById('cart-items');
+    const cartTotal = document.getElementById('cart-total');
+
+    // Remove the item from the cart list
+    cartList.removeChild(cartItem);
+
+    // Update the total price
+    const currentTotal = parseFloat(cartTotal.textContent);
+    cartTotal.textContent = (currentTotal - price).toFixed(2);
+
+    // Update the cart count
+    const cartCount = document.getElementById('cart-count');
+    const currentCount = parseInt(cartCount.textContent);
+    cartCount.textContent = currentCount - 1;
+}
+
+    </script>
+</body>
+</html>
